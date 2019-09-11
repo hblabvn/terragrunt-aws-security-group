@@ -38,6 +38,26 @@ data "aws_security_group" "source_data_access" {
   id    = "${element(local.source_data_access_ids,count.index)}"
 }
 
+data "aws_security_groups" "source_webapp_access" {
+  count = "${local.num_webapp_tags > 0 ? 1 : 0}" 
+  tags  = "${merge(var.webapp_access_security_group_tags,map("Env", "${var.project_env}"))}"
+
+  filter {
+    name   = "vpc-id"
+    values = ["${data.aws_vpc.vpc.id}"]
+  }
+}
+
+locals = {
+  source_webapp_access_ids   = "${flatten(coalescelist(data.aws_security_groups.source_webapp_access.*.ids,list()))}"
+  source_webapp_access_names = "${flatten(coalescelist(data.aws_security_group.source_webapp_access.*.name,list()))}"
+}
+
+data "aws_security_group" "source_webapp_access" {
+  count = "${local.num_data_tags > 0 ? length(local.source_webapp_access_ids) : 0}"
+  id    = "${element(local.source_webapp_access_ids,count.index)}"
+}
+
 data "aws_security_group" "source_management" {
   count  = "${local.num_management_tags > 0 ? 1 : 0}" 
   tags   = "${merge(var.management_security_group_tags,map("Env", "${var.project_env}"))}"
@@ -64,9 +84,19 @@ resource "null_resource" "ingress_with_source_sg_management" {
   }
 }
 
+resource "null_resource" "ingress_with_source_sgs_webapp_access" {
+  count = "${length(local.source_webapp_access_ids)}"
+
+  triggers {
+    rule                     = "${var.webapp_port}"
+    description              = "${element(local.source_webapp_access_names, count.index)}"
+    source_security_group_id = "${element(local.source_webapp_access_ids, count.index)}"
+  }
+}
+
 locals {
   name = "${var.namespace == "" ? "" : "${var.namespace}-"}${lower(var.project_env_short)}-${lower(var.name)}"
-  ingress_with_source_security_group_ids = "${concat(null_resource.ingress_with_source_sgs_data_access.*.triggers,null_resource.ingress_with_source_sg_management.*.triggers)}"
+  ingress_with_source_security_group_ids = "${concat(null_resource.ingress_with_source_sgs_data_access.*.triggers,null_resource.ingress_with_source_sg_management.*.triggers,null_resource.ingress_with_source_sgs_webapp_access.*.triggers)}"
 }
 
 module "security_group" {

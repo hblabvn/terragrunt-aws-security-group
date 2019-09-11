@@ -11,6 +11,8 @@ variable "vpc_name" { default = "default" }
 
 variable "data_access_security_group_tags" { default = {} }
 variable "data_port" { default = "mysql-tcp" }
+variable "webapp_access_security_group_tags" { default = {} }
+variable "webapp_port" { default = "http-80-tcp" }
 variable "management_security_group_tags" { default = {} }
 variable "management_rules" { default = ["ssh-tcp"] }
 
