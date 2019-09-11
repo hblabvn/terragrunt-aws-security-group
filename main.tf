@@ -20,7 +20,7 @@ locals = {
 
 data "aws_security_groups" "source_data_access" {
   count = "${local.num_data_tags > 0 ? 1 : 0}" 
-  tags  = "${var.data_access_security_group_tags}"
+  tags  = "${merge(var.data_access_security_group_tags,map("Env", "${var.project_env}"))}"
 
   filter {
     name   = "vpc-id"
@@ -40,7 +40,7 @@ data "aws_security_group" "source_data_access" {
 
 data "aws_security_group" "source_management" {
   count  = "${local.num_management_tags > 0 ? 1 : 0}" 
-  tags   = "${var.management_security_group_tags}"
+  tags   = "${merge(var.management_security_group_tags,map("Env", "${var.project_env}"))}"
   vpc_id = "${data.aws_vpc.vpc.id}"
 }
 
