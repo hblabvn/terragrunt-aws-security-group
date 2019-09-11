@@ -15,6 +15,7 @@ data "aws_vpc" "vpc" {
 
 locals = {
   num_data_tags       = "${length(keys(var.data_access_security_group_tags))}"
+  num_webapp_tags     = "${length(keys(var.webapp_access_security_group_tags))}"
   num_management_tags = "${length(keys(var.management_security_group_tags))}"
 }
 
