@@ -55,7 +55,7 @@ locals = {
 }
 
 data "aws_security_group" "source_webapp_access" {
-  count = "${local.num_data_tags > 0 ? length(local.source_webapp_access_ids) : 0}"
+  count = "${local.num_webapp_tags > 0 ? length(local.source_webapp_access_ids) : 0}"
   id    = "${element(local.source_webapp_access_ids,count.index)}"
 }
 
