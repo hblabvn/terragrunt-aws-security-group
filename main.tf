@@ -96,7 +96,8 @@ resource "null_resource" "ingress_with_source_sgs_webapp_access" {
 }
 
 locals {
-  name = "${var.namespace == "" ? "" : "${var.namespace}-"}${lower(var.project_env_short)}-${lower(var.name)}"
+  common_name = "${var.namespace == "" ? "" : "${var.namespace}-"}${lower(var.project_env_short)}-${lower(var.name)}"
+  name        = "${var.customized_name == "" ? local.common_name : var.customized_name}"
   ingress_with_source_security_group_ids = "${concat(null_resource.ingress_with_source_sgs_data_access.*.triggers,null_resource.ingress_with_source_sg_management.*.triggers,null_resource.ingress_with_source_sgs_webapp_access.*.triggers)}"
 }
 

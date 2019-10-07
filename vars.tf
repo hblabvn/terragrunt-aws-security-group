@@ -6,6 +6,7 @@ variable "aws_profile" { default = "default" }
 
 variable "namespace" { default = "" }
 variable "name" { default = "security-group" }
+variable "customized_name" { default = "" }
 variable "description" { default = "This is a security group" }
 variable "vpc_name" { default = "default" }
 
