@@ -17,11 +17,15 @@ locals = {
   num_data_tags       = "${length(keys(var.data_access_security_group_tags))}"
   num_webapp_tags     = "${length(keys(var.webapp_access_security_group_tags))}"
   num_management_tags = "${length(keys(var.management_security_group_tags))}"
+  env_tags            = {
+    enabled     = { Env = "${var.project_env}" }
+    not_enabled = {} 
+  }
 }
 
 data "aws_security_groups" "source_data_access" {
   count = "${local.num_data_tags > 0 ? 1 : 0}" 
-  tags  = "${merge(var.data_access_security_group_tags,map("Env", "${var.project_env}"))}"
+  tags  = "${merge(var.data_access_security_group_tags,local.env_tags[var.enable_env_tags ? "enabled" : "not_enabled"])}"
 
   filter {
     name   = "vpc-id"
@@ -41,7 +45,7 @@ data "aws_security_group" "source_data_access" {
 
 data "aws_security_groups" "source_webapp_access" {
   count = "${local.num_webapp_tags > 0 ? 1 : 0}" 
-  tags  = "${merge(var.webapp_access_security_group_tags,map("Env", "${var.project_env}"))}"
+  tags  = "${merge(var.webapp_access_security_group_tags,local.env_tags[var.enable_env_tags ? "enabled" : "not_enabled"])}"
 
   filter {
     name   = "vpc-id"
@@ -61,7 +65,7 @@ data "aws_security_group" "source_webapp_access" {
 
 data "aws_security_group" "source_management" {
   count  = "${local.num_management_tags > 0 ? 1 : 0}" 
-  tags   = "${merge(var.management_security_group_tags,map("Env", "${var.project_env}"))}"
+  tags   = "${merge(var.management_security_group_tags,local.env_tags[var.enable_env_tags ? "enabled" : "not_enabled"])}"
   vpc_id = "${data.aws_vpc.vpc.id}"
 }
 

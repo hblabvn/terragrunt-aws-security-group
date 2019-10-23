@@ -39,6 +39,10 @@ variable "egress_rules" { default = ["all-all"] }
 variable "egress_with_cidr_blocks" { default = [] }
 variable "egress_with_ipv6_cidr_blocks" { default = [] }
 
+variable "enable_env_tags" {
+  description = "Allow add Env Tags into Tags when searching"
+  default     = true
+}
 variable "tags" {
   default = {}
 }
